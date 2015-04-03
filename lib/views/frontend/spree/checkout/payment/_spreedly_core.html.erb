@@ -21,7 +21,7 @@
 <input name="year" type="text" id="year" size="4">
 
 <script type="text/javascript">
-    var spreedlyPaymentFrame = new Spreedly.PaymentFrame("XkPaiYB41TJBdW7yja3hOt09og0");
+    var spreedlyPaymentFrame = new Spreedly.PaymentFrame("<%= payment_method.preferred_publishable_key %>");
     document.getElementById('frame-holder').style.visibility="hidden";
     // Rest of PaymentFrame configuration will go in between, here
     spreedlyPaymentFrame.bind(document.getElementById('spreedly-iframe'));
