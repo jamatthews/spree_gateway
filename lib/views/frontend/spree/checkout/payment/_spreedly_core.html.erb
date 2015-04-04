@@ -1,27 +1,33 @@
+<% options_hash = Rails.env.production? ? {:autocomplete => 'off'} : {} %>
 <!-- Include the payment-frame library on your page -->
 <script src="https://core.spreedly.com/payment-frame/payment-frame-0.3.min.js"></script>
 
 <!-- This field will get the payment method token value after the user submits the payment frame -->
 <input type="hidden" name="payment_method_token" id="payment_method_token" value="" />
 
-<label for="first_name">First name</label>
-<input type="text" id="first_name" name="first_name" /><br/>
+<div class="well clearfix">
+	<%= image_tag 'credit_cards/credit_card.gif', :id => 'credit-card-image', :class => 'pull-right', :width => '170', :height => '28' %>
+	<% param_prefix = "payment_source[#{payment_method.id}]" %>
 
-<label for="last_name">Last name</label>
-<input type="text" id="last_name" name="last_name" />
+	<p class="field">
+		<%= label_tag "name_on_card_#{payment_method.id}" do %>
+			<%= Spree.t(:name_on_card) %><abbr class="required" title="required">*</abbr>
+		<% end %>
+		<%= text_field_tag "#{param_prefix}[name]", "#{@order.billing_firstname} #{@order.billing_lastname}", { id: "name_on_card_#{payment_method.id}", :class => 'form-control required'} %>
+	</p>
+	
+	<!-- This is where the CC number and CVV fields will appear -->
+	<div id='frame-holder' class="field">
+		<iframe id="spreedly-iframe" frameborder="0" width="100%" height="100%" scrolling="no"></iframe>
+		<%= link_to "(#{Spree.t(:what_is_this)})", spree.content_path('cvv'), :target => '_blank', "data-hook" => "cvv_link", :id => "cvv_link" %>
+	</div>
+	
 
-<!-- This is where the CC number and CVV fields will appear -->
-<div id='frame-holder'>
-<iframe id="spreedly-iframe" frameborder="0" width="100%" height="100%" scrolling="no"></iframe>
+	<%= hidden_field_tag "#{param_prefix}[cc_type]", '', :id => "cc_type", :class => 'ccType' %>
 </div>
 
-<!-- You are responsible for collecting required, but not PCI-sensitive data, such as the card exp mm/yyyy -->
-<label for="month">Expiration Date</label>
-<input name="month" type="text" id="month" size="3"> /
-<input name="year" type="text" id="year" size="4">
-
 <script type="text/javascript">
-    var spreedlyPaymentFrame = new Spreedly.PaymentFrame("<%= payment_method.preferred_publishable_key %>");
+    var spreedlyPaymentFrame = new Spreedly.PaymentFrame("<%= payment_method.preferred_login %>");
     document.getElementById('frame-holder').style.visibility="hidden";
     // Rest of PaymentFrame configuration will go in between, here
     spreedlyPaymentFrame.bind(document.getElementById('spreedly-iframe'));
@@ -61,6 +67,46 @@
             }
         }
     });
+	
+	spreedlyPaymentFrame.on('config', function(frame) {
+		frame.setStyle('body', 'margin: 0px;');
+	  frame.setStyle('input', 
+		'font-size: 15pt;' +
+		'font-family: "Source Sans Pro",Calibri,Candara,Arial,sans-serif;' +
+		'box-sizing: border-box;'+
+		'list-style: outside none none;'+
+	    'line-height: 1.42857143;' +
+	    'color: #333333;' +
+	    'display: block;' +
+		'margin: 0px;' +
+	    'width: 100%;' +
+	    'height: 43px;' +
+	    'padding: 10px 18px;' +
+	    'background-color: #fff;' +
+	    'background-image: none;' +
+	    'border: 1px solid #ccc;' +
+	    'border-radius: 0;' +
+	    '-webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);' +
+	    'box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);' +
+	    '-webkit-transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;' +
+	    '-o-transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;' +
+	    'transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;');
+	 frame.setStyle('label', 
+		'margin: 0px;' +
+		'font-family: "Source Sans Pro",Calibri,Candara,Arial,sans-serif;' +
+		'box-sizing: border-box;' +
+		'list-style: outside none none;' +
+	    'line-height: 1.42857143;' +
+	    'color: #333333;' +
+	    'display: inline-block;' +
+	    'max-width: 100%;' +
+	    'margin-bottom: 5px;' +
+	    'font-weight: bold;');
+
+	  frame.setText('label[for="spf-number"]', 'Card Number');
+	  frame.setText('label[for="spf-verification_value"]', 'CVV');
+
+	});
 
     var masterForm = document.getElementById('checkout_form_payment')
 
@@ -73,4 +119,3 @@
         document.getElementById("frame-holder").style.visibility = 'visible';
     });
 </script>
-
