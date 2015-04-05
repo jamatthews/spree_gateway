@@ -22,10 +22,17 @@
 		<%= link_to "(#{Spree.t(:what_is_this)})", spree.content_path('cvv'), :target => '_blank', "data-hook" => "cvv_link", :id => "cvv_link" %>
 	</div>
 	
-
+	<p class="field" data-hook="card_expiration">
+	  <%= label_tag "card_expiry" do %>
+	    <%= Spree.t(:expiration) %><abbr class="required" title="required">*</abbr>
+	  <% end %>
+	  <%= text_field_tag "#{param_prefix}[expiry]", '', :id => 'card_expiry', :class => "form-control required cardExpiry", :placeholder => "MM / YY" %>
+	</p>
+	
+	
 	<%= hidden_field_tag "#{param_prefix}[cc_type]", '', :id => "cc_type", :class => 'ccType' %>
-</div>
 
+</div>
 <script type="text/javascript">
     var spreedlyPaymentFrame = new Spreedly.PaymentFrame("<%= payment_method.preferred_login %>");
     document.getElementById('frame-holder').style.visibility="hidden";
@@ -33,15 +40,13 @@
     spreedlyPaymentFrame.bind(document.getElementById('spreedly-iframe'));
 
     function submitPaymentForm() {
-
-        // These are the fields whose values we want to transfer *from* the
+		// These are the fields whose values we want to transfer *from* the
         // master form *to* the payment frame form.
-        var paymentMethodFields = ['first_name', 'last_name', 'month', 'year']
-        for(var i = 0; i < paymentMethodFields.length; i++) {
-            var field = paymentMethodFields[i];
-            spreedlyPaymentFrame.setParam(field, document.getElementById(field).value)
-        }
-        spreedlyPaymentFrame.submit();
+		var expiry = document.getElementById('card_expiry').value.split(' / ');
+		spreedlyPaymentFrame.setParam('full_name', document.getElementById('name_on_card_<%= payment_method.id =%>').value)
+        spreedlyPaymentFrame.setParam('month', expiry[0]);
+		spreedlyPaymentFrame.setParam('year', '20' + expiry[1]);
+		spreedlyPaymentFrame.submit();
     }
 
     spreedlyPaymentFrame.on('paymentMethod', function(token, pmData) {
@@ -71,7 +76,7 @@
 	spreedlyPaymentFrame.on('config', function(frame) {
 		frame.setStyle('body', 'margin: 0px;');
 	  frame.setStyle('input', 
-		'font-size: 15pt;' +
+		'font-size: 15px;' +
 		'font-family: "Source Sans Pro",Calibri,Candara,Arial,sans-serif;' +
 		'box-sizing: border-box;'+
 		'list-style: outside none none;'+
