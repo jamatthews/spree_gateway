@@ -33,11 +33,29 @@
 	<%= hidden_field_tag "#{param_prefix}[cc_type]", '', :id => "cc_type", :class => 'ccType' %>
 
 </div>
+
+<div id="spreedly-alert" class="alert alert-warning collapse">
+	<span id="spreedly-errors"></span>
+</div>
+
 <script type="text/javascript">
+	var masterForm = document.getElementById('checkout_form_payment')
+
+	masterForm.onsubmit = function(){
+	    submitPaymentForm();
+	    return false;
+	};
+	
+	var masterForm = $('#checkout_form_payment');
+	
     var spreedlyPaymentFrame = new Spreedly.PaymentFrame("<%= payment_method.preferred_login %>");
     document.getElementById('frame-holder').style.visibility="hidden";
     // Rest of PaymentFrame configuration will go in between, here
     spreedlyPaymentFrame.bind(document.getElementById('spreedly-iframe'));
+
+	spreedlyPaymentFrame.on('ready', function() {
+	    document.getElementById("frame-holder").style.visibility = 'visible';
+	});
 
     function submitPaymentForm() {
 		// These are the fields whose values we want to transfer *from* the
@@ -50,8 +68,6 @@
     }
 
     spreedlyPaymentFrame.on('paymentMethod', function(token, pmData) {
-        var masterForm = $('#checkout_form_payment');
-
         masterForm.append("<input type='hidden' class='spreedlyToken' name='payment_source[" + <%= payment_method.id %> + "][gateway_payment_profile_id]' value='" + token + "'/>");
         masterForm.append("<input type='hidden' class='spreedlyToken' name='payment_source[" + <%= payment_method.id %> + "][last_digits]' value='" + pmData.last_four_digits + "'/>");
         masterForm.append("<input type='hidden' class='spreedlyToken' name='payment_source[" + <%= payment_method.id %> + "][month]' value='" + pmData.month + "'/>");
@@ -63,14 +79,22 @@
     });
 
     spreedlyPaymentFrame.on('errors', function(errors) {
-        for(var i = 0; i < errors.length; i++) {
+        var $alert = $('#spreedly-alert');
+		
+		var $errors = $('#spreedly-errors');
+		
+		$errors.text('');
+		
+		for(var i = 0; i < errors.length; i++) {
             var error = errors[i];
             if(error["attribute"]) {
                 spreedlyPaymentFrame.setStyle('input#spf-' + error["attribute"], "border: 1px solid red;");
-            } else {
-                console.log(error["key"] + ": " + error["message"]);
             }
+			$errors.text($errors.text() + error['message']);
         }
+		
+		$alert.show();
+		$('#checkout_form_payment input[type=submit]').removeAttr('disabled').removeClass('disabled');
     });
 	
 	spreedlyPaymentFrame.on('config', function(frame) {
@@ -112,15 +136,4 @@
 	  frame.setText('label[for="spf-verification_value"]', 'CVV');
 
 	});
-
-    var masterForm = document.getElementById('checkout_form_payment')
-
-    masterForm.onsubmit = function(){
-        submitPaymentForm();
-        return false;
-    };
-
-    spreedlyPaymentFrame.on('ready', function() {
-        document.getElementById("frame-holder").style.visibility = 'visible';
-    });
 </script>
