@@ -39,11 +39,18 @@
 </div>
 
 <script type="text/javascript">
+	Spree.spreedlyPaymentMethod = $('#payment_method_' + <%= payment_method.id %>);
+	
 	var masterForm = document.getElementById('checkout_form_payment')
 
 	masterForm.onsubmit = function(){
-	    submitPaymentForm();
-	    return false;
+		 if (Spree.spreedlyPaymentMethod.is(':visible')) {
+	    	 submitPaymentForm();
+	    	 return false;
+		 } else {
+	         masterForm.removeAttr('onsubmit');
+	         masterForm.submit();
+		 }
 	};
 	
 	var masterForm = $('#checkout_form_payment');
