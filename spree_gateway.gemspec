@@ -16,7 +16,7 @@ Gem::Specification.new do |s|
   s.require_path = 'lib'
   s.requirements << 'none'
 
-  s.add_dependency 'spree_core', '~> 3.0'
+  s.add_dependency 'spree_core', '~> 3.0.0'
 
   s.add_development_dependency 'braintree'
   s.add_development_dependency 'capybara'
@@ -28,7 +28,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'launchy'
   s.add_development_dependency 'mysql2'
   s.add_development_dependency 'pg'
-  s.add_development_dependency 'poltergeist', '~> 1.5.0'
+  s.add_development_dependency 'poltergeist', '~> 1.6.0'
   s.add_development_dependency 'pry'
   s.add_development_dependency 'rspec-activemodel-mocks'
   s.add_development_dependency 'rspec-rails', '~> 2.99'
