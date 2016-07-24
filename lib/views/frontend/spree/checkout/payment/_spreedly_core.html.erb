@@ -52,22 +52,20 @@
 
 <script type="text/javascript">
 	Spree.spreedlyPaymentMethod = $('#payment_method_' + <%= payment_method.id %>);
-	
-	var masterForm = document.getElementById('checkout_form_payment')
 
-	masterForm.onsubmit = function(){
+	var masterForm = $('#checkout_form_payment');
+
+	masterForm.on('submit', function(){
 		 if (Spree.spreedlyPaymentMethod.is(':visible')) {
 	    	 submitPaymentForm();
 	    	 return false;
 		 } else {
-	         masterForm.removeAttr('onsubmit');
+	         masterForm.unbind('submit');
 	         masterForm.submit();
 		 }
-	};
-	
-	var masterForm = $('#checkout_form_payment');
-	
-    // Rest of PaymentFrame configuration will go in between, here
+	});
+
+	// Rest of PaymentFrame configuration will go in between, here
 	Spreedly.on('ready', function() {
 		var css = 'margin: 0px;' +
   		'font-size: 15px;' +
@@ -114,7 +112,7 @@
         masterForm.append("<input type='hidden' class='spreedlyToken' name='payment_source[" + <%= payment_method.id %> + "][year]' value='" + pmData.year + "'/>");
 
 
-        masterForm.removeAttr('onsubmit');
+				masterForm.unbind('submit');
         masterForm.submit();
     });
 
