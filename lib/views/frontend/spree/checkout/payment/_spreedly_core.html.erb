@@ -11,7 +11,7 @@
 		<%= label_tag "name_on_card_#{payment_method.id}" do %>
 			<%= Spree.t(:name_on_card) %><abbr class="required" title="required">*</abbr>
 		<% end %>
-		<%= text_field_tag "#{param_prefix}[name]", "#{@order.billing_firstname} #{@order.billing_lastname}", { id: "name_on_card_#{payment_method.id}", :class => 'form-control required'} %>
+		<%= text_field_tag "#{param_prefix}[name]", "#{@order.bill_address_firstname} #{@order.bill_address_lastname}", { id: "name_on_card_#{payment_method.id}", :class => 'form-control required'} %>
 	</p>
 	
 	<!-- This is where the CC number and CVV fields will appear -->
@@ -100,7 +100,7 @@
         // master form *to* the payment frame form.
 		var expiry = document.getElementById('card_expiry').value.split(' / ');
 		var options = {
-				full_name: document.getElementById('name_on_card_<%= payment_method.id =%>').value,
+				full_name: document.getElementById('name_on_card_<%= payment_method.id %>').value,
 				month: expiry[0],
 				year: '20' + expiry[1],
 			};
